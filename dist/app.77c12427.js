@@ -3304,7 +3304,7 @@ var Countries = /*#__PURE__*/function () {
     key: "generatemarkup",
     value: function generatemarkup(country, data) {
       var html = data.map(function (el) {
-        return "<div class=\"countries__card\">\n        <div class=\"countries__card--image\"><img src=\"".concat(el.flag, "\" class='countries__card--img'></img>\n        </div>\n        <div class=\"countries__card--desciption\">\n            <h1 class=\"name\">").concat(el.name, "</h1>\n            <ul class=\"description__list\">\n                <li class=\"description__item\">Population:<span class=\"description__data\"> ").concat(el.population, "</span></li>\n                <li class=\"description__item\">Region<span class=\"description__data\">").concat(el.region, "</span></li>\n                <li class=\"description__item\">Capital<span class=\"description__data\">").concat(el.capital, "</span></li>\n            </ul>\n        </div>\n    </div>");
+        return "<div class=\"countries__card\">\n        <div class=\"countries__card--image\"><img src=\"".concat(el.flag, "\" class='countries__card--img'></img>\n        </div>\n        <div class=\"countries__card--desciption\">\n            <h1 class=\"name\">").concat(el.name, "</h1>\n            <ul class=\"description__list\">\n                <li class=\"description__item\">Population:<span class=\"description__data\"> ").concat(el.population.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), "</span></li>\n                <li class=\"description__item\">Region: <span class=\"description__data\">").concat(el.region, "</span></li>\n                <li class=\"description__item\">Capital: <span class=\"description__data\">").concat(el.capital, "</span></li>\n            </ul>\n        </div>\n    </div>");
       }).join();
       country.insertAdjacentHTML("afterbegin", html);
     }
@@ -3330,7 +3330,7 @@ exports.default = _default;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getCountriesPages = exports.getAllTheCountries = exports.state = void 0;
+exports.getCountriesFromRegion = exports.getCountriesPagesRegions = exports.getCountriesPages = exports.getAllTheCountries = exports.state = void 0;
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
@@ -3338,6 +3338,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 var state = {
   countries: {
+    result: [],
+    page: 1,
+    resultsPerPage: 8
+  },
+  regions: {
     result: [],
     page: 1,
     resultsPerPage: 8
@@ -3406,6 +3411,68 @@ var getCountriesPages = /*#__PURE__*/function () {
 }();
 
 exports.getCountriesPages = getCountriesPages;
+
+var getCountriesPagesRegions = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(page) {
+    var start, end;
+    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            state.countries.page = page;
+            start = (page - 1) * state.countries.resultsPerPage;
+            end = page * state.countries.resultsPerPage;
+            return _context3.abrupt("return", state.regions.result.slice(start, end));
+
+          case 4:
+          case "end":
+            return _context3.stop();
+        }
+      }
+    }, _callee3);
+  }));
+
+  return function getCountriesPagesRegions(_x2) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+
+exports.getCountriesPagesRegions = getCountriesPagesRegions;
+
+var getCountriesFromRegion = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(region) {
+    var res, data;
+    return regeneratorRuntime.wrap(function _callee4$(_context4) {
+      while (1) {
+        switch (_context4.prev = _context4.next) {
+          case 0:
+            _context4.next = 2;
+            return fetch("https://restcountries.eu/rest/v2/region/".concat(region));
+
+          case 2:
+            res = _context4.sent;
+            _context4.next = 5;
+            return res.json();
+
+          case 5:
+            data = _context4.sent;
+            state.regions.result = data;
+            return _context4.abrupt("return", data);
+
+          case 8:
+          case "end":
+            return _context4.stop();
+        }
+      }
+    }, _callee4);
+  }));
+
+  return function getCountriesFromRegion(_x3) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+
+exports.getCountriesFromRegion = getCountriesFromRegion;
 },{}],"src/js/app.js":[function(require,module,exports) {
 "use strict";
 
@@ -3427,6 +3494,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 var _require = require("q"),
     async = _require.async;
+
+var showAll = document.querySelector(".countries__all");
+var countries = document.querySelector(".countries");
+var regions = document.querySelector(".button__region");
+var selectDiv = document.querySelector("#select__continent");
 
 var controlCountries = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
@@ -3461,11 +3533,6 @@ var controlCountries = /*#__PURE__*/function () {
                   switch (_context.prev = _context.next) {
                     case 0:
                       currentPage++;
-                      _context.next = 3;
-                      return model.getCountriesPages(currentPage);
-
-                    case 3:
-                      nextPage = _context.sent;
                       console.log(currentPage);
                       console.log(results);
 
@@ -3475,6 +3542,11 @@ var controlCountries = /*#__PURE__*/function () {
                       }
 
                       countries.textContent = "";
+                      _context.next = 7;
+                      return model.getCountriesPages(currentPage);
+
+                    case 7:
+                      nextPage = _context.sent;
 
                       _ShowCountries.default.generatemarkup(countries, nextPage);
 
@@ -3492,19 +3564,19 @@ var controlCountries = /*#__PURE__*/function () {
                   switch (_context2.prev = _context2.next) {
                     case 0:
                       currentPage--;
-                      _context2.next = 3;
-                      return model.getCountriesPages(currentPage);
-
-                    case 3:
-                      prevPage = _context2.sent;
                       countries.textContent = "";
 
-                      if (currentPage <= 1) {
+                      if (currentPage <= 0) {
                         console.log("lastpage");
-                        currentPage = 2;
+                        currentPage = 1;
                       }
 
                       console.log(currentPage);
+                      _context2.next = 6;
+                      return model.getCountriesPages(currentPage);
+
+                    case 6:
+                      prevPage = _context2.sent;
 
                       _ShowCountries.default.generatemarkup(countries, prevPage);
 
@@ -3531,9 +3603,122 @@ var controlCountries = /*#__PURE__*/function () {
   };
 }();
 
-var controlPages = function controlPages() {};
+showAll.addEventListener("click", function () {
+  if (countries.innerHTML !== "") {
+    controlCountries();
+  }
+});
 
-window.addEventListener("load", controlCountries);
+var controlRegions = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
+    var countries, container, data, results, pages, buttonNext, buttonPrevious, currentPage;
+    return regeneratorRuntime.wrap(function _callee6$(_context6) {
+      while (1) {
+        switch (_context6.prev = _context6.next) {
+          case 0:
+            countries = document.querySelector(".countries");
+            container = document.querySelector(".container");
+            _context6.next = 4;
+            return model.getCountriesFromRegion("".concat(selectDiv.value));
+
+          case 4:
+            data = _context6.sent;
+            console.log(data);
+            results = model.state.regions.result;
+            _context6.next = 9;
+            return model.getCountriesPagesRegions(model.state.regions.page);
+
+          case 9:
+            pages = _context6.sent;
+
+            _ShowCountries.default.generatePageButton(countries, results);
+
+            buttonNext = document.querySelector(".button__next");
+            buttonPrevious = document.querySelector(".button__previous");
+            currentPage = 1;
+            buttonNext.addEventListener("click", /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
+              var nextPage;
+              return regeneratorRuntime.wrap(function _callee4$(_context4) {
+                while (1) {
+                  switch (_context4.prev = _context4.next) {
+                    case 0:
+                      currentPage++;
+                      console.log(currentPage);
+                      console.log(results);
+
+                      if (currentPage >= results.length / 8) {
+                        console.log("lastpage");
+                        currentPage = 1;
+                      }
+
+                      countries.textContent = "";
+                      _context4.next = 7;
+                      return model.getCountriesPagesRegions(currentPage);
+
+                    case 7:
+                      nextPage = _context4.sent;
+
+                      _ShowCountries.default.generatemarkup(countries, nextPage);
+
+                    case 9:
+                    case "end":
+                      return _context4.stop();
+                  }
+                }
+              }, _callee4);
+            })));
+            buttonPrevious.addEventListener("click", /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
+              var prevPage;
+              return regeneratorRuntime.wrap(function _callee5$(_context5) {
+                while (1) {
+                  switch (_context5.prev = _context5.next) {
+                    case 0:
+                      currentPage--;
+                      countries.textContent = "";
+
+                      if (currentPage <= 0) {
+                        console.log("lastpage");
+                        currentPage = 1;
+                      }
+
+                      console.log(currentPage);
+                      _context5.next = 6;
+                      return model.getCountriesPagesRegions(currentPage);
+
+                    case 6:
+                      prevPage = _context5.sent;
+
+                      _ShowCountries.default.generatemarkup(countries, prevPage);
+
+                    case 8:
+                    case "end":
+                      return _context5.stop();
+                  }
+                }
+              }, _callee5);
+            })));
+
+            _ShowCountries.default.generatemarkup(countries, pages);
+
+          case 17:
+          case "end":
+            return _context6.stop();
+        }
+      }
+    }, _callee6);
+  }));
+
+  return function controlRegions() {
+    return _ref4.apply(this, arguments);
+  };
+}();
+
+regions.addEventListener("click", function () {
+  if (countries.innerHTML !== "") {
+    countries.textContent = "";
+    controlRegions();
+  }
+});
 },{"q":"node_modules/q/q.js","regenerator-runtime/runtime":"node_modules/regenerator-runtime/runtime.js","./Views/ShowCountries.js":"src/js/Views/ShowCountries.js","./model.js":"src/js/model.js"}],"node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -3562,7 +3747,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53644" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60529" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
