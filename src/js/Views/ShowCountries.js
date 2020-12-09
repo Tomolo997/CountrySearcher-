@@ -2,7 +2,6 @@ class Countries {
   _data;
 
   generatemarkup(country, data) {
-    console.log(data);
     const html = data
       .map((el) => {
         return `<div class="countries__card">
@@ -21,6 +20,17 @@ class Countries {
       .join();
 
     country.insertAdjacentHTML("afterbegin", html);
+  }
+
+  generatePageButton(country, data) {
+    const currentPage = data;
+    console.log(data);
+    const html = `<br>
+   <br>
+   
+    <div> <button class="button__previous" >previous</button> <button class="button__next">next</button></div>
+      `;
+    country.insertAdjacentHTML("afterend", html);
   }
 }
 
