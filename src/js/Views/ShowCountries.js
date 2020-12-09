@@ -33,10 +33,13 @@ class Countries {
   generatePageButton(country, data) {
     const currentPage = data;
     console.log(data);
-    const html = `<br>
-   <br>
-   
-    <div> <button class="button__previous" >previous</button> <button class="button__next">next</button></div>
+    const html = `    <div> <button class="button__previous" >previous</button> <button class="button__next">next</button></div>
+      `;
+    country.insertAdjacentHTML("afterend", html);
+  }
+
+  renderError(country, data) {
+    const html = ` <h1>ERROR</h1>
       `;
     country.insertAdjacentHTML("afterend", html);
   }

@@ -3313,7 +3313,13 @@ var Countries = /*#__PURE__*/function () {
     value: function generatePageButton(country, data) {
       var currentPage = data;
       console.log(data);
-      var html = "<br>\n   <br>\n   \n    <div> <button class=\"button__previous\" >previous</button> <button class=\"button__next\">next</button></div>\n      ";
+      var html = "    <div> <button class=\"button__previous\" >previous</button> <button class=\"button__next\">next</button></div>\n      ";
+      country.insertAdjacentHTML("afterend", html);
+    }
+  }, {
+    key: "renderError",
+    value: function renderError(country, data) {
+      var html = " <h1>ERROR</h1>\n      ";
       country.insertAdjacentHTML("afterend", html);
     }
   }]);
@@ -3330,7 +3336,7 @@ exports.default = _default;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getCountriesFromRegion = exports.getCountriesPagesRegions = exports.getCountriesPages = exports.getAllTheCountries = exports.state = void 0;
+exports.getCountriesFromName = exports.getCountriesPagesName = exports.getCountriesFromRegion = exports.getCountriesPagesRegions = exports.getCountriesPages = exports.getAllTheCountries = exports.state = void 0;
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
@@ -3343,6 +3349,11 @@ var state = {
     resultsPerPage: 8
   },
   regions: {
+    result: [],
+    page: 1,
+    resultsPerPage: 8
+  },
+  name: {
     result: [],
     page: 1,
     resultsPerPage: 8
@@ -3473,6 +3484,74 @@ var getCountriesFromRegion = /*#__PURE__*/function () {
 }();
 
 exports.getCountriesFromRegion = getCountriesFromRegion;
+
+var getCountriesPagesName = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(page) {
+    var start, end;
+    return regeneratorRuntime.wrap(function _callee5$(_context5) {
+      while (1) {
+        switch (_context5.prev = _context5.next) {
+          case 0:
+            state.countries.page = page;
+            start = (page - 1) * state.countries.resultsPerPage;
+            end = page * state.countries.resultsPerPage;
+            return _context5.abrupt("return", state.name.result.slice(start, end));
+
+          case 4:
+          case "end":
+            return _context5.stop();
+        }
+      }
+    }, _callee5);
+  }));
+
+  return function getCountriesPagesName(_x4) {
+    return _ref5.apply(this, arguments);
+  };
+}();
+
+exports.getCountriesPagesName = getCountriesPagesName;
+
+var getCountriesFromName = /*#__PURE__*/function () {
+  var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(name) {
+    var res, data;
+    return regeneratorRuntime.wrap(function _callee6$(_context6) {
+      while (1) {
+        switch (_context6.prev = _context6.next) {
+          case 0:
+            _context6.prev = 0;
+            _context6.next = 3;
+            return fetch("https://restcountries.eu/rest/v2/name/".concat(name));
+
+          case 3:
+            res = _context6.sent;
+            _context6.next = 6;
+            return res.json();
+
+          case 6:
+            data = _context6.sent;
+            state.name.result = data;
+            return _context6.abrupt("return", data);
+
+          case 11:
+            _context6.prev = 11;
+            _context6.t0 = _context6["catch"](0);
+            throw new Error();
+
+          case 14:
+          case "end":
+            return _context6.stop();
+        }
+      }
+    }, _callee6, null, [[0, 11]]);
+  }));
+
+  return function getCountriesFromName(_x5) {
+    return _ref6.apply(this, arguments);
+  };
+}();
+
+exports.getCountriesFromName = getCountriesFromName;
 },{}],"src/js/app.js":[function(require,module,exports) {
 "use strict";
 
@@ -3487,6 +3566,8 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _readOnlyError(name) { throw new TypeError("\"" + name + "\" is read-only"); }
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
@@ -3590,7 +3671,9 @@ var controlCountries = /*#__PURE__*/function () {
 
             _ShowCountries.default.generatemarkup(countries, pages);
 
-          case 16:
+            data = (_readOnlyError("data"), "");
+
+          case 17:
           case "end":
             return _context3.stop();
         }
@@ -3606,6 +3689,14 @@ var controlCountries = /*#__PURE__*/function () {
 showAll.addEventListener("click", function () {
   if (countries.innerHTML !== "") {
     controlCountries();
+    countries.textContent = "";
+    var buttonNext = document.querySelector(".button__next");
+    var buttonPrevious = document.querySelector(".button__previous");
+
+    if (buttonNext && buttonPrevious) {
+      buttonPrevious.style.display = "none";
+      buttonNext.style.display = "none";
+    }
   }
 });
 
@@ -3700,7 +3791,9 @@ var controlRegions = /*#__PURE__*/function () {
 
             _ShowCountries.default.generatemarkup(countries, pages);
 
-          case 17:
+            data = (_readOnlyError("data"), "");
+
+          case 18:
           case "end":
             return _context6.stop();
         }
@@ -3717,6 +3810,147 @@ regions.addEventListener("click", function () {
   if (countries.innerHTML !== "") {
     countries.textContent = "";
     controlRegions();
+    var buttonNext = document.querySelector(".button__next");
+    var buttonPrevious = document.querySelector(".button__previous");
+
+    if (buttonNext && buttonPrevious) {
+      buttonPrevious.style.display = "none";
+      buttonNext.style.display = "none";
+    }
+  }
+});
+var input = document.querySelector(".input");
+var name = document.querySelector(".btn__search");
+
+var controlRegionsByName = /*#__PURE__*/function () {
+  var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9() {
+    var _countries, container, data, results, pages, buttonNext, buttonPrevious, currentPage;
+
+    return regeneratorRuntime.wrap(function _callee9$(_context9) {
+      while (1) {
+        switch (_context9.prev = _context9.next) {
+          case 0:
+            _context9.prev = 0;
+            _countries = document.querySelector(".countries");
+            container = document.querySelector(".container");
+            _context9.next = 5;
+            return model.getCountriesFromName("".concat(input.value));
+
+          case 5:
+            data = _context9.sent;
+            console.log(data);
+            results = model.state.name.result;
+            _context9.next = 10;
+            return model.getCountriesPagesName(model.state.name.page);
+
+          case 10:
+            pages = _context9.sent;
+
+            _ShowCountries.default.generatePageButton(_countries, results);
+
+            buttonNext = document.querySelector(".button__next");
+            buttonPrevious = document.querySelector(".button__previous");
+            currentPage = 1;
+            buttonNext.addEventListener("click", /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7() {
+              var nextPage;
+              return regeneratorRuntime.wrap(function _callee7$(_context7) {
+                while (1) {
+                  switch (_context7.prev = _context7.next) {
+                    case 0:
+                      currentPage++;
+                      console.log(currentPage);
+                      console.log(results);
+
+                      if (currentPage >= results.length / 8) {
+                        console.log("lastpage");
+                        currentPage = 1;
+                      }
+
+                      _countries.textContent = "";
+                      _context7.next = 7;
+                      return model.getCountriesPagesName(currentPage);
+
+                    case 7:
+                      nextPage = _context7.sent;
+
+                      _ShowCountries.default.generatemarkup(_countries, nextPage);
+
+                    case 9:
+                    case "end":
+                      return _context7.stop();
+                  }
+                }
+              }, _callee7);
+            })));
+            buttonPrevious.addEventListener("click", /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {
+              var prevPage;
+              return regeneratorRuntime.wrap(function _callee8$(_context8) {
+                while (1) {
+                  switch (_context8.prev = _context8.next) {
+                    case 0:
+                      currentPage--;
+                      _countries.textContent = "";
+
+                      if (currentPage <= 0) {
+                        console.log("lastpage");
+                        currentPage = 1;
+                      }
+
+                      console.log(currentPage);
+                      _context8.next = 6;
+                      return model.getCountriesPagesName(currentPage);
+
+                    case 6:
+                      prevPage = _context8.sent;
+
+                      _ShowCountries.default.generatemarkup(_countries, prevPage);
+
+                    case 8:
+                    case "end":
+                      return _context8.stop();
+                  }
+                }
+              }, _callee8);
+            })));
+
+            _ShowCountries.default.generatemarkup(_countries, pages);
+
+            data = (_readOnlyError("data"), "");
+            _context9.next = 25;
+            break;
+
+          case 21:
+            _context9.prev = 21;
+            _context9.t0 = _context9["catch"](0);
+
+            _ShowCountries.default.renderError(countries);
+
+            model.state.name.result = [];
+
+          case 25:
+          case "end":
+            return _context9.stop();
+        }
+      }
+    }, _callee9, null, [[0, 21]]);
+  }));
+
+  return function controlRegionsByName() {
+    return _ref7.apply(this, arguments);
+  };
+}();
+
+name.addEventListener("click", function () {
+  if (countries.innerHTML !== "") {
+    countries.textContent = "";
+    controlRegionsByName();
+    var buttonNext = document.querySelector(".button__next");
+    var buttonPrevious = document.querySelector(".button__previous");
+
+    if (buttonNext && buttonPrevious) {
+      buttonPrevious.style.display = "none";
+      buttonNext.style.display = "none";
+    }
   }
 });
 },{"q":"node_modules/q/q.js","regenerator-runtime/runtime":"node_modules/regenerator-runtime/runtime.js","./Views/ShowCountries.js":"src/js/Views/ShowCountries.js","./model.js":"src/js/model.js"}],"node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
@@ -3747,7 +3981,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60529" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63304" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
